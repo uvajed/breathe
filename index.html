@@ -3,7 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Breathe</title>
+    <title>Breathe — Guided Breathing Exercises</title>
+    <meta name="description" content="A meditative breathing exercise guide. Calm your mind with simple, beautiful breathing patterns.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://breathe.e-studios.net/">
+    <meta property="og:title" content="Breathe — Guided Breathing Exercises">
+    <meta property="og:description" content="A meditative breathing exercise guide. Calm your mind with simple, beautiful breathing patterns.">
+    <meta property="og:image" content="https://breathe.e-studios.net/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://breathe.e-studios.net/">
+    <meta name="twitter:title" content="Breathe — Guided Breathing Exercises">
+    <meta name="twitter:description" content="A meditative breathing exercise guide. Calm your mind with simple, beautiful breathing patterns.">
+    <meta name="twitter:image" content="https://breathe.e-studios.net/og-image.png">
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%233b82f6' opacity='0.6'/%3E%3Ccircle cx='50' cy='50' r='25' fill='%2306b6d4' opacity='0.4'/%3E%3C/svg%3E">
+
     <style>
         * {
             margin: 0;
@@ -275,6 +295,42 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .footer a {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer a:hover {
+            opacity: 0.8;
+        }
+
+        .footer .dot {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background: #c9a87c;
+            border-radius: 50%;
+            margin: 0 1px;
+            vertical-align: middle;
+            margin-bottom: 2px;
+        }
     </style>
 </head>
 <body>
@@ -533,5 +589,11 @@
         // Initialize
         showExerciseDescription();
     </script>
+
+    <footer class="footer">
+        <a href="https://e-studios.net" target="_blank">
+            powered by e<span class="dot"></span>studios
+        </a>
+    </footer>
 </body>
 </html>
