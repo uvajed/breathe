@@ -8,7 +8,7 @@ A collection of health and wellbeing web applications, starting with a meditativ
 
 ## Architecture
 
-### breathe.html
+### index.html (Breathing Exercise)
 A self-contained breathing exercise web app using vanilla HTML/CSS/JavaScript. No build tools or dependencies.
 
 **Structure:**
@@ -27,7 +27,7 @@ A self-contained breathing exercise web app using vanilla HTML/CSS/JavaScript. N
 
 Open HTML files directly in a browser:
 ```bash
-open breathe.html
+open index.html
 ```
 
 No build process required.
