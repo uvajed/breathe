@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breathe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #0a0f1a;
+            --bg-soft: #111827;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #06b6d4;
+            --accent-tertiary: #8b5cf6;
+            --text-primary: rgba(255, 255, 255, 0.9);
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --text-muted: rgba(255, 255, 255, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Subtle gradient background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        /* Exercise selector - minimal and tucked away */
+        .exercise-selector {
+            position: absolute;
+            top: 2rem;
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0.6;
+            transition: opacity 0.5s ease;
+        }
+
+        .exercise-selector:hover {
+            opacity: 1;
+        }
+
+        .exercise-selector.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .exercise-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+        }
+
+        .exercise-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .exercise-btn.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--text-primary);
+        }
+
+        /* The breathing circle - the heart of the experience */
+        .breath-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .breath-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(59, 130, 246, 0.4) 0%,
+                rgba(6, 182, 212, 0.2) 50%,
+                rgba(139, 92, 246, 0.1) 100%);
+            box-shadow:
+                0 0 60px rgba(59, 130, 246, 0.3),
+                0 0 120px rgba(6, 182, 212, 0.15),
+                inset 0 0 60px rgba(255, 255, 255, 0.05);
+            transform: scale(0.6);
+            transition: transform 0.1s ease-out;
+        }
+
+        .breath-circle::before {
+            content: '';
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            right: 5%;
+            bottom: 5%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 60%);
+        }
+
+        /* Outer ring - subtle guidance */
+        .breath-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Instruction text */
+        .instruction {
+            position: relative;
+            z-index: 2;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .instruction.visible {
+            opacity: 1;
+        }
+
+        /* Start prompt */
+        .start-prompt {
+            position: absolute;
+            bottom: -4rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .start-prompt.hidden {
+            opacity: 0;
+        }
+
+        /* Session info - very subtle */
+        .session-info {
+            position: absolute;
+            bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .session-info.visible {
+            opacity: 0.5;
+        }
+
+        .session-info:hover {
+            opacity: 0.8;
+        }
+
+        .cycle-count {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+        }
+
+        .stop-btn {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-muted);
+            padding: 0.4rem 1.2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .stop-btn:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: var(--text-secondary);
+        }
+
+        /* Exercise description */
+        .exercise-description {
+            position: absolute;
+            top: 5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .exercise-description.visible {
+            opacity: 0.6;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .exercise-selector {
+                flex-wrap: wrap;
+                justify-content: center;
+                max-width: 90%;
+            }
+
+            .breath-container {
+                width: 220px;
+                height: 220px;
+            }
+
+            .instruction {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Smooth fade for page load */
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <div class="container fade-in">
+        <!-- Exercise selector -->
+        <div class="exercise-selector" id="exerciseSelector">
+            <button class="exercise-btn active" data-exercise="calm">Calm</button>
+            <button class="exercise-btn" data-exercise="box">Box</button>
+            <button class="exercise-btn" data-exercise="relax">4-7-8</button>
+            <button class="exercise-btn" data-exercise="deep">Deep</button>
+        </div>
+
+        <div class="exercise-description" id="exerciseDescription"></div>
+
+        <!-- Main breathing circle -->
+        <div class="breath-container" id="breathContainer">
+            <div class="breath-ring"></div>
+            <div class="breath-circle" id="breathCircle"></div>
+            <span class="instruction" id="instruction">Breathe</span>
+            <span class="start-prompt" id="startPrompt">tap to begin</span>
+        </div>
+
+        <!-- Session info -->
+        <div class="session-info" id="sessionInfo">
+            <span class="cycle-count" id="cycleCount">0 breaths</span>
+            <button class="stop-btn" id="stopBtn">End</button>
+        </div>
+    </div>
+
+    <script>
+        // Breathing exercise configurations
+        const exercises = {
+            calm: {
+                name: 'Calm',
+                description: 'Simple balanced breathing to quiet the mind',
+                phases: [
+                    { name: 'Inhale', duration: 4000, scale: 1 },
+                    { name: 'Exhale', duration: 4000, scale: 0.6 }
+                ]
+            },
+            box: {
+                name: 'Box Breathing',
+                description: 'Equal phases to ground and center yourself',
+                phases: [
+                    { name: 'Inhale', duration: 4000, scale: 1 },
+                    { name: 'Hold', duration: 4000, scale: 1 },
+                    { name: 'Exhale', duration: 4000, scale: 0.6 },
+                    { name: 'Hold', duration: 4000, scale: 0.6 }
+                ]
+            },
+            relax: {
+                name: '4-7-8 Relaxing',
+                description: 'A natural tranquilizer for the nervous system',
+                phases: [
+                    { name: 'Inhale', duration: 4000, scale: 1 },
+                    { name: 'Hold', duration: 7000, scale: 1 },
+                    { name: 'Exhale', duration: 8000, scale: 0.6 }
+                ]
+            },
+            deep: {
+                name: 'Deep Calm',
+                description: 'Slow, deep breaths for profound relaxation',
+                phases: [
+                    { name: 'Inhale', duration: 6000, scale: 1 },
+                    { name: 'Hold', duration: 2000, scale: 1 },
+                    { name: 'Exhale', duration: 6000, scale: 0.6 },
+                    { name: 'Hold', duration: 2000, scale: 0.6 }
+                ]
+            }
+        };
+
+        // State
+        let currentExercise = 'calm';
+        let isRunning = false;
+        let currentPhaseIndex = 0;
+        let cycleCount = 0;
+        let animationFrame = null;
+        let phaseStartTime = 0;
+        let currentScale = 0.6;
+
+        // Elements
+        const breathCircle = document.getElementById('breathCircle');
+        const instruction = document.getElementById('instruction');
+        const startPrompt = document.getElementById('startPrompt');
+        const sessionInfo = document.getElementById('sessionInfo');
+        const cycleCountEl = document.getElementById('cycleCount');
+        const exerciseSelector = document.getElementById('exerciseSelector');
+        const exerciseDescription = document.getElementById('exerciseDescription');
+        const breathContainer = document.getElementById('breathContainer');
+        const stopBtn = document.getElementById('stopBtn');
+
+        // Easing function for natural breathing feel
+        function easeInOutSine(t) {
+            return -(Math.cos(Math.PI * t) - 1) / 2;
+        }
+
+        // Update the breathing animation
+        function updateBreathing(timestamp) {
+            if (!isRunning) return;
+
+            const exercise = exercises[currentExercise];
+            const phase = exercise.phases[currentPhaseIndex];
+            const elapsed = timestamp - phaseStartTime;
+            const progress = Math.min(elapsed / phase.duration, 1);
+
+            // Calculate target scale
+            const prevPhaseIndex = (currentPhaseIndex - 1 + exercise.phases.length) % exercise.phases.length;
+            const prevScale = exercise.phases[prevPhaseIndex].scale;
+            const targetScale = phase.scale;
+
+            // Apply easing
+            const easedProgress = easeInOutSine(progress);
+            currentScale = prevScale + (targetScale - prevScale) * easedProgress;
+
+            // Update circle
+            breathCircle.style.transform = `scale(${currentScale})`;
+
+            // Check if phase complete
+            if (progress >= 1) {
+                currentPhaseIndex = (currentPhaseIndex + 1) % exercise.phases.length;
+
+                // Count cycle when we complete all phases
+                if (currentPhaseIndex === 0) {
+                    cycleCount++;
+                    cycleCountEl.textContent = `${cycleCount} ${cycleCount === 1 ? 'breath' : 'breaths'}`;
+                }
+
+                phaseStartTime = timestamp;
+                updateInstruction();
+            }
+
+            animationFrame = requestAnimationFrame(updateBreathing);
+        }
+
+        // Update instruction text with fade
+        function updateInstruction() {
+            const phase = exercises[currentExercise].phases[currentPhaseIndex];
+            instruction.classList.remove('visible');
+
+            setTimeout(() => {
+                instruction.textContent = phase.name;
+                instruction.classList.add('visible');
+            }, 200);
+        }
+
+        // Start breathing session
+        function startBreathing() {
+            if (isRunning) return;
+
+            isRunning = true;
+            currentPhaseIndex = 0;
+            cycleCount = 0;
+
+            // Update UI
+            startPrompt.classList.add('hidden');
+            sessionInfo.classList.add('visible');
+            exerciseSelector.classList.add('hidden');
+            exerciseDescription.classList.remove('visible');
+            cycleCountEl.textContent = '0 breaths';
+
+            // Start animation
+            updateInstruction();
+            phaseStartTime = performance.now();
+            animationFrame = requestAnimationFrame(updateBreathing);
+        }
+
+        // Stop breathing session
+        function stopBreathing() {
+            isRunning = false;
+
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+
+            // Reset UI
+            instruction.classList.remove('visible');
+            setTimeout(() => {
+                instruction.textContent = 'Breathe';
+                instruction.classList.add('visible');
+            }, 300);
+
+            startPrompt.classList.remove('hidden');
+            sessionInfo.classList.remove('visible');
+            exerciseSelector.classList.remove('hidden');
+
+            // Smoothly return circle to rest state
+            breathCircle.style.transition = 'transform 1s ease-out';
+            breathCircle.style.transform = 'scale(0.6)';
+            setTimeout(() => {
+                breathCircle.style.transition = 'transform 0.1s ease-out';
+            }, 1000);
+
+            // Show description after a moment
+            setTimeout(() => {
+                if (!isRunning) {
+                    showExerciseDescription();
+                }
+            }, 500);
+        }
+
+        // Show exercise description
+        function showExerciseDescription() {
+            const exercise = exercises[currentExercise];
+            exerciseDescription.textContent = exercise.description;
+            exerciseDescription.classList.add('visible');
+        }
+
+        // Select exercise
+        function selectExercise(exerciseKey) {
+            currentExercise = exerciseKey;
+
+            // Update button states
+            document.querySelectorAll('.exercise-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.exercise === exerciseKey);
+            });
+
+            showExerciseDescription();
+        }
+
+        // Event listeners
+        breathContainer.addEventListener('click', () => {
+            if (isRunning) {
+                stopBreathing();
+            } else {
+                startBreathing();
+            }
+        });
+
+        stopBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            stopBreathing();
+        });
+
+        document.querySelectorAll('.exercise-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectExercise(btn.dataset.exercise);
+            });
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (isRunning) {
+                    stopBreathing();
+                } else {
+                    startBreathing();
+                }
+            } else if (e.code === 'Escape' && isRunning) {
+                stopBreathing();
+            }
+        });
+
+        // Initialize
+        showExerciseDescription();
+    </script>
+</body>
+</html>
