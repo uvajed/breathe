@@ -31,3 +31,14 @@ open index.html
 ```
 
 No build process required.
+
+## Deployment
+
+Hosted on Vercel at **https://breathe-calm.vercel.app** (also aliased to breathe.e-studios.net).
+
+Deploy via:
+```bash
+npx vercel --prod
+```
+
+**Note:** Vercel Authentication must be **disabled** in Project Settings → Deployment Protection for social media crawlers (Facebook, Twitter) to access the site for link previews.
